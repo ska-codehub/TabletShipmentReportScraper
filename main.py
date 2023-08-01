@@ -684,6 +684,8 @@ class TabletScraper:
                                     print(f"Couldn't get page for {franchise}")
                                     if confirmation_input(f"Retry with re-configuring and re-login...", "N/y")==True:
                                         return self.start_scraping(offset_franchise_code=franchise_code_list[i-2])
+                                    elif confirmation_input(f"Retry with only re-login...", "N/y")==True:
+                                        self.login()
                                     else:
                                         print("Trying to get the page again...")
                             except Exception as e:
