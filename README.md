@@ -1,4 +1,4 @@
-# Tablet Scraper 1.1.1
+# Tablet Scraper 1.1.2
 It's a web scraping tool which extracts the customer contact details of the shipment report from Tablet website.
 
 ## Author: Sk Khurshid Alam

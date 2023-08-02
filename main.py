@@ -70,7 +70,7 @@ SITE_DOMAIN = SETTINGS.get('site_domain').strip()
 LOGIN_URL = SETTINGS.get('login_url').strip()
 LOGIN_TITLE = SETTINGS.get('login_title').strip()
 LOGIN_REDIRECT_TITLE = SETTINGS.get('login_redirect_title').strip()
-LOGIN_SESSION_EXPIRED_TITLE = SETTINGS.get('login_session_expired_title').strip()
+CUSTOMER_CARE_TITLE = SETTINGS.get('customer_care_title').strip()
 SITE_URL = SETTINGS.get('site_url').strip()
 SITE_TITLE = SETTINGS.get('site_title').strip()
 
@@ -522,9 +522,9 @@ class TabletScraper:
                 return self.ask_credentials()
 
     def cleanup_session_login(self):
-        if self.is_title_valid(None) or self.is_title_valid("") or self.is_page_ready(LOGIN_SESSION_EXPIRED_TITLE):
+        if self.is_title_valid(None) or self.is_title_valid(""):
             body_el = self.browser.find_element(By.TAG_NAME, "body")
-            body_el.send_keys(Keys.ESC)
+            body_el.send_keys(Keys.ESCAPE)
             print("Re-configuring and Re-loging...")
             if USER_DATA_DIR.exists():
                 self.kill_browser_process()
@@ -557,14 +557,15 @@ class TabletScraper:
                 time.sleep(4)
                 print(f"Waiting for login redirect title {LOGIN_REDIRECT_TITLE}!")
                 if not self.is_page_ready(LOGIN_REDIRECT_TITLE):
-                    if not self.cleanup_session_login():
-                        print("Couldn't login!!! Re-loging...")
-                        return self.login()
+                    if self.is_page_ready(CUSTOMER_CARE_TITLE):
+                        if not self.cleanup_session_login():
+                            print("Couldn't login!!! Re-loging...")
+                            return self.login()
                 return True
         print()
         print("Browser Title: ", self.browser.title)
         print()
-        return self.cleanup_session_login() or self.is_page_ready(LOGIN_REDIRECT_TITLE) or self.is_page_ready(SITE_TITLE)
+        return self.is_page_ready(CUSTOMER_CARE_TITLE) or self.is_page_ready(LOGIN_REDIRECT_TITLE) or self.is_page_ready(SITE_TITLE) or self.cleanup_session_login()
 
     def get_franchise_list_codelist(self, page_source):
         soup = BeautifulSoup(page_source, "html.parser")
@@ -648,8 +649,8 @@ class TabletScraper:
                     franchise_code_list = franchise_code_list[skip_index:]
                     franchise_list = franchise_list[skip_index:]
                     
-                existing_franchise_list =  [f.split(".")[0] for f in os.listdir(ARCHIVE_DIR)]
-                considerable_list = [f.split(".")[0] for f in os.listdir(DATA_DIR)]
+                existing_franchise_list =  [Path(f).stem for f in os.listdir(ARCHIVE_DIR)]
+                considerable_list = [Path(f).stem for f in os.listdir(DATA_DIR)]
                 for i, franchise_code in enumerate(franchise_code_list):
                     try:
                         franchise = franchise_list[i]
